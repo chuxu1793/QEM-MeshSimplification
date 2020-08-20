@@ -86,7 +86,7 @@ protected:
 	/*! Face, current halfedge attached to. */
 	CFace       *     m_face; // 面，当前半边所依附的面
 	/*! Target vertex of the current halfedge. */
-	CVertex     *     m_vertex;		//target vertex  当前半边的终点？
+	CVertex     *     m_vertex;		//target vertex  当前半边的终点
 	/*! Previous halfedge of the current halfedge, in the same face. */
 	CHalfEdge	*	  m_prev; // 当前半边的前一个半边，均在同一个面中
 	/*! Next halfedge of the current halfedge, in the same face. */

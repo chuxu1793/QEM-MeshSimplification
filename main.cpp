@@ -429,14 +429,14 @@ int main(int argc, char * argv[])
 	
 	//srand(unsigned(time(0)));
 	//mesh.setStrcture();
-	//cout<< "插入点数" << endl;
+	//cout<< "鎻掑叆鐐规暟" << endl;
 	//int num;
 	//cin >> num;
 	//mesh.addPoint(num);
 	//mesh.getface();
 	//mesh.save();
 	//cout << "process is ok" << endl;
-	std::string mesh_name("D:\\数字影视后期制作\\MeshSimplification\\data\\sphere.m");
+	std::string mesh_name("D:\\鏁板瓧褰辫鍚庢湡鍒朵綔\\MeshSimplification\\data\\sphere.m");
 	//std::string mesh_name(".\\data.m");
 	//std::string mesh_name("D:\\default1.obj");
 	if (strutil::endsWith(mesh_name, ".obj"))

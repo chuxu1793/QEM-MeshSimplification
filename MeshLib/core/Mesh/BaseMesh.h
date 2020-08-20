@@ -575,7 +575,7 @@ inline CHalfEdge * CBaseMesh<CVertex,CEdge,CFace,CHalfEdge>::faceHalfedge( tFace
 };
 
 
-//access he->next
+//access he->next 下一个半边
 /*!
 	The next halfedge of a halfedge. 
 	\param he the input halfedge.
