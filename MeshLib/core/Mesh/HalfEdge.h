@@ -46,14 +46,21 @@ public:
 	CHalfEdge *  &  he_prev() { return m_prev;};
 	/*! Next halfedge of the current halfedge. */
 	CHalfEdge *  &  he_next() { return m_next;};
+
 	/*! The dual halfedge of the current halfedge. */
-	CHalfEdge * & he_sym()  { return m_edge->other( this ); };
+	CHalfEdge *&he_sym()
+	{
+		return m_edge->other(this); // 当前半边的对应的相反方向的半边
+	};
+
 	/*! The face, to which the current halfedge attach. */
 	CFace     * & face()    { return m_face;};
+
 	/*! Rotate the halfedge about the target vertex ccwly. 
 		\return if the current halfedge is the most ccw in halfedge of its target vertex, which is on boundary, return NULL. 	
 	*/
 	CHalfEdge *   ccw_rotate_about_target();
+
 	/*! Rotate the halfedge about the target vertex clwly. 
 		\return if the current halfedge is the most clw in halfedge of its target vertex, which is on boundary, return NULL. 	
 	*/
@@ -75,15 +82,15 @@ public:
 
 protected:
 	/*! Edge, current halfedge attached to. */
-	CEdge       *     m_edge;
+	CEdge       *     m_edge; // 当前半边所依附的边
 	/*! Face, current halfedge attached to. */
-	CFace       *     m_face;
+	CFace       *     m_face; // 面，当前半边所依附的面
 	/*! Target vertex of the current halfedge. */
-	CVertex     *     m_vertex;		//target vertex
+	CVertex     *     m_vertex;		//target vertex  当前半边的终点？
 	/*! Previous halfedge of the current halfedge, in the same face. */
-	CHalfEdge	*	  m_prev;
+	CHalfEdge	*	  m_prev; // 当前半边的前一个半边，均在同一个面中
 	/*! Next halfedge of the current halfedge, in the same face. */
-	CHalfEdge	*     m_next;
+	CHalfEdge	*     m_next; // 当前半边的后一个半边，均在同一个面中
 	/*! The string of the current halfedge. */
 	std::string       m_string;
 };

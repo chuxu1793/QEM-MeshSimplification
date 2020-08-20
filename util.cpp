@@ -1,5 +1,5 @@
 #include "util.h"
-Vector4d util::getplane(CPoint p1, CPoint p2, CPoint p3) {//¼ÆËãÆ½Ãæ²ÎÊı
+Vector4d util::getplane(CPoint p1, CPoint p2, CPoint p3) {//è®¡ç®—å¹³é¢å‚æ•°
 	Vector4d result;
 	result(0) = (p2[1] - p1[1])*(p3[2] - p1[2]) - (p3[1] - p1[1])*(p2[2] - p1[2]);
 	result(1) = (p2[2] - p1[2])*(p3[0] - p1[0]) - (p2[0] - p1[0])*(p3[2] - p1[2]);
@@ -15,7 +15,7 @@ double util::getdist(CPoint p1, CPoint p2) {
 	double dist = sqrt((p1[0] - p2[0])*(p1[0] - p2[0]) + (p1[1] - p2[1])*(p1[1] - p2[1])+ (p1[2] - p2[2])*(p1[2] - p2[2]));
 	return dist;
 }
-Matrix4d util::getQ(CVertex *p) {//¼ÆËãpµãµÄQ
+Matrix4d util::getQ(CVertex *p) {//è®¡ç®—pç‚¹çš„Q
 	Matrix4d m;
 	m= Matrix4d::Zero();
 	for (VertexFaceIterator<CVertex, CEdge, CFace, CHalfEdge> vfiter(p); !vfiter.end(); ++vfiter)
@@ -32,7 +32,7 @@ Matrix4d util::getQ(CVertex *p) {//¼ÆËãpµãµÄQ
 	}
 	return m;
 }
-void util::deleteEdge(CMyMesh *mesh,CEdge* e) {//É¾³ı±ße
+void util::deleteEdge(CMyMesh *mesh,CEdge* e) {//åˆ é™¤è¾¹e
 	CHalfEdge *pHe = e->halfedge(0);
 	mesh->edges().remove((CMyEdge*)e);
 	CVertex *v1, *v2;
@@ -48,7 +48,7 @@ void util::deleteEdge(CMyMesh *mesh,CEdge* e) {//É¾³ı±ße
 	}
 	delete e;
 }
-CEdge* util::locateEdge(CMyMesh *mesh,CVertex* p1, CVertex*p2) {//ÕÒµ½p1,p2ËùÔÚµÄ±ß
+CEdge* util::locateEdge(CMyMesh *mesh,CVertex* p1, CVertex*p2) {//æ‰¾åˆ°p1,p2æ‰€åœ¨çš„è¾¹
 	CMyVertex *v = mesh->idVertex(p1->id());
 	for (CMyMesh::VertexInHalfedgeIterator vihiter(mesh,v); !vihiter.end(); vihiter++) {
 		CHalfEdge *pHe = *vihiter;

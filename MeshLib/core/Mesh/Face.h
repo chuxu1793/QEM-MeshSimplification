@@ -33,7 +33,7 @@ public:
 	*/
 	~CFace(){};
 	/*!
-		One of the halfedges attaching to the current face.
+		One of the halfedges attaching to the current face. 依附当前“面”的其中一条半边
 	*/
 	CHalfEdge    *		& halfedge() { return m_halfedge; };
 	/*!
@@ -45,7 +45,7 @@ public:
 	*/
 	const int             id() const { return m_id;      };
 	/*!
-		The string of the current face.
+		The string of the current face. 当前“面”的字符串
 	*/
 	std::string			& string()     { return m_string; };
 	/*!
@@ -62,7 +62,7 @@ protected:
 	*/
 	int			       m_id;
 	/*!
-		One halfedge  attaching to the current face.
+		One halfedge  attaching to the current face. 
 	*/
 	CHalfEdge        * m_halfedge;
 	/*!

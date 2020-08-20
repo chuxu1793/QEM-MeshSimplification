@@ -49,15 +49,18 @@ namespace MeshLib{
 	*/
 	CPoint2 & uv()       { return m_uv; };
 
-	/*! The most counter clockwise outgoing halfedge of the vertex .
+	/*! The most counter clockwise outgoing halfedge of the vertex .   counter clockwise是逆时针的意思
 	*/
     CHalfEdge * most_ccw_out_halfedge();
+
 	/*! The most clockwise outgoing halfedge of the vertex .
 	*/
     CHalfEdge * most_clw_out_halfedge();
+
 	/*! The most counter clockwise incoming halfedge of the vertex. 
 	*/
     CHalfEdge * most_ccw_in_halfedge();
+
 	/*! The most clockwise incoming halfedge of the vertex. 
 	*/
     CHalfEdge * most_clw_in_halfedge();
@@ -91,28 +94,34 @@ namespace MeshLib{
     /*! Vertex ID. 
 	*/
     int    m_id ;
-    /*! Vertex position point. 
+
+    /*! Vertex position point. 顶点位置信息
 	*/
     CPoint m_point;
-	/*! Normal at the vertex. 
+
+	/*! Normal at the vertex. 顶点的法线
 	*/
     CPoint m_normal;
-	/*! Texture coordinates of the vertex. 
+
+	/*! Texture coordinates of the vertex.  顶点的纹理坐标
 	*/
 	CPoint2 m_uv;
-	/*! The most CCW incoming halfedge of the vertex.
+
+	/*! The most CCW incoming halfedge of the vertex. 
 	*/
-    CHalfEdge *     m_halfedge;
+    CHalfEdge *     m_halfedge; // 以该顶点为终点的其中一条half_edge
+
 	/*! Indicating if the vertex is on the boundary. 
 	*/
-    bool            m_boundary;
+    bool            m_boundary; // 顶点是否在边界的标志位
+
 	/*! The string of the vertex, which stores the traits information. 
 	*/
 	std::string     m_string;
 
 	/*! List of adjacent edges, such that current vertex is the end vertex of the edge with smaller id
 	 */
-	std::list<CEdge*> m_edges;
+	std::list<CEdge*> m_edges; // 邻接边的列表
 
         Matrix4d Q;
   }; //class CVertex
@@ -124,7 +133,7 @@ namespace MeshLib{
  
 inline CHalfEdge *  CVertex::most_ccw_in_halfedge()  
 { 
-	//for interior vertex
+	//for interior vertex 对于内部顶点（非边界点）
 	if( !m_boundary )
 	{
 		return m_halfedge; //current half edge is the most ccw in halfedge 

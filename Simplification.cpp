@@ -81,7 +81,7 @@ void Simplification::contraction(CMyMesh *mesh,Pair p) {
 	p.p1->point() = p.v;
 	p.p1->setQ(p.p1->getQ() + p.p2->getQ());
 	//CMyVertex *v;
-	//¼ÇÂ¼°ë±ß
+	//è®°å½•åŠè¾¹
 	CHalfEdge*pHe3 = NULL, *pHe4 = NULL, *pHe5 = NULL, *pHe6 = NULL,*pH1=NULL,*pH2=NULL;
 		//if (!(e->boundary())) {
 		//	if(!(e->halfedge(0)->he_next()->edge()->boundary())&& !(e->halfedge(0)->he_prev()->edge()->boundary()) && !(e->halfedge(1)->he_next()->edge()->boundary())&& !(e->halfedge(1)->he_prev()->edge()->boundary())){
@@ -135,12 +135,12 @@ void Simplification::contraction(CMyMesh *mesh,Pair p) {
 				//	}
 				//}
 				//BuildPairHeap();
-			//ÕÒµ½p1,p2ËùÔÚµÄ±ße
+			//æ‰¾åˆ°p1,p2æ‰€åœ¨çš„è¾¹e
 			CEdge* e = util::locateEdge(mesh,p.p1, p.p2);
 			if ((e!=NULL)&&!(e->boundary()) && (e->halfedge(0)->he_next()->he_sym()!=NULL) && (e->halfedge(0)->he_prev()->he_sym() != NULL) && (e->halfedge(1)->he_next()->he_sym() != NULL) && (e->halfedge(1)->he_prev()->he_sym() != NULL)) {
 				pH1 = e->halfedge(0);
 				pH2 = e->halfedge(1);
-				//¼ÇÂ¼²»É¾µÄ°ë±ß
+				//è®°å½•ä¸åˆ çš„åŠè¾¹
 				if (e->halfedge(0)->target()->id() == p.p2->id()) {
 					pHe3 = e->halfedge(0)->he_next()->he_sym();	
 					pHe4 = e->halfedge(0)->he_prev()->he_sym();
@@ -157,22 +157,22 @@ void Simplification::contraction(CMyMesh *mesh,Pair p) {
 					cout << "PHe4 is boundary3" << endl;
 					getchar();
 				}
-				//É¾³ýÃæ
+				//åˆ é™¤é¢
 				if (pH1 != NULL) {
 					mesh->deleteFace((CMyFace*)pH1->face());
 				}
 				if (pH2 != NULL) {
 					mesh->deleteFace((CMyFace*)pH2->face());
 				}
-				//É¾³ý±ß
+				//åˆ é™¤è¾¹
 				util::deleteEdge(mesh, pHe3->edge());
 				util::deleteEdge(mesh, pHe5->edge());
-				//Á´½Ó¶ÔÅ¼ºÍ±ß
+				//é“¾æŽ¥å¯¹å¶å’Œè¾¹
 				pHe4->he_sym() = pHe3;
 				pHe3->edge() = pHe4->edge();
 				pHe6->he_sym() = pHe5;
 				pHe5->edge() = pHe6->edge();
-				//¸Ä±äËùÓÐºÍp2ÓÐ¹ØµÄ°ë±ß×ßÏò
+				//æ”¹å˜æ‰€æœ‰å’Œp2æœ‰å…³çš„åŠè¾¹èµ°å‘
 				for (CMyMesh::VertexInHalfedgeIterator vieiter(mesh, v); !vieiter.end(); ++vieiter) {
 					CHalfEdge *pH = *vieiter;
 					pH->target() = p.p1;
@@ -181,7 +181,7 @@ void Simplification::contraction(CMyMesh *mesh,Pair p) {
 					CHalfEdge *pH = *vieiter;
 					pH->source() = p.p1;
 				}
-				//É¾³ýp2µã
+				//åˆ é™¤p2ç‚¹
 				mesh->vertices().remove((CMyVertex *)p.p2);
 				//mesh->vertices().erase(find(mesh->vertices().begin(), mesh->vertices().end(), p.p2));
 				cout << "merge success" << endl;
@@ -191,13 +191,13 @@ void Simplification::contraction(CMyMesh *mesh,Pair p) {
 	//		if ((e != NULL) && !(e->boundary())) {
 	//			
 	//			if (e->halfedge(0)->target()->id() == p.p2->id()) {
-	//				if (e->halfedge(0)->he_next()->edge()->boundary()&& e->halfedge(1)->he_prev()->edge()->boundary()) {//ÉÏÏÂÁ½Ãæ¶¼ÊÇ±ß½ç£¬É¾Ãæ¼´¿É
+	//				if (e->halfedge(0)->he_next()->edge()->boundary()&& e->halfedge(1)->he_prev()->edge()->boundary()) {//ä¸Šä¸‹ä¸¤é¢éƒ½æ˜¯è¾¹ç•Œï¼Œåˆ é¢å³å¯
 	//					
 	//					mesh->deleteFace((CMyFace*)pH1->face());
 	//					mesh->deleteFace((CMyFace*)pH2->face());
 	//					//util::deleteEdge(mesh, e->halfedge(0)->he_next()->edge())
 	//				}
-	//				else if (e->halfedge(0)->he_next()->edge()->boundary() && !(e->halfedge(1)->he_prev()->edge()->boundary())) {//ÉÏÃæ±ß½ç£¬ÏÂÃæ²»ÊÇ£¬É¾Ãæ£¬¸Ä×ßÏò£¬É¾±ß
+	//				else if (e->halfedge(0)->he_next()->edge()->boundary() && !(e->halfedge(1)->he_prev()->edge()->boundary())) {//ä¸Šé¢è¾¹ç•Œï¼Œä¸‹é¢ä¸æ˜¯ï¼Œåˆ é¢ï¼Œæ”¹èµ°å‘ï¼Œåˆ è¾¹
 	//					
 	//					
 	//					if (e->halfedge(1)->he_next()->he_sym() != NULL) {
@@ -250,12 +250,12 @@ void Simplification::contraction(CMyMesh *mesh,Pair p) {
 	//						mesh->deleteFace((CMyFace*)pH2->face());
 	//						util::deleteEdge(mesh, pHe3->edge());
 	//						util::deleteEdge(mesh, pHe5->edge());
-	//						//Á´½Ó¶ÔÅ¼ºÍ±ß
+	//						//é“¾æŽ¥å¯¹å¶å’Œè¾¹
 	//						pHe4->he_sym() = pHe3;
 	//						pHe3->edge() = pHe4->edge();
 	//						pHe6->he_sym() = pHe5;
 	//						pHe5->edge() = pHe6->edge();
-	//						//¸Ä±äËùÓÐºÍp2ÓÐ¹ØµÄ°ë±ß×ßÏò
+	//						//æ”¹å˜æ‰€æœ‰å’Œp2æœ‰å…³çš„åŠè¾¹èµ°å‘
 	//						for (CMyMesh::VertexInHalfedgeIterator vieiter(mesh, v); !vieiter.end(); ++vieiter) {
 	//							CHalfEdge *pH = *vieiter;
 	//							pH->target() = p.p1;
@@ -268,13 +268,13 @@ void Simplification::contraction(CMyMesh *mesh,Pair p) {
 	//				}
 	//			}
 	//			else {
-	//				if (e->halfedge(0)->he_prev()->edge()->boundary() && e->halfedge(1)->he_next()->edge()->boundary()) {//ÉÏÏÂÁ½Ãæ¶¼ÊÇ±ß½ç£¬É¾Ãæ¼´¿É
+	//				if (e->halfedge(0)->he_prev()->edge()->boundary() && e->halfedge(1)->he_next()->edge()->boundary()) {//ä¸Šä¸‹ä¸¤é¢éƒ½æ˜¯è¾¹ç•Œï¼Œåˆ é¢å³å¯
 
 	//					mesh->deleteFace((CMyFace*)pH1->face());
 	//					mesh->deleteFace((CMyFace*)pH2->face());
 	//					//util::deleteEdge(mesh, e->halfedge(0)->he_next()->edge())
 	//				}
-	//				else if (e->halfedge(0)->he_prev()->edge()->boundary() && !(e->halfedge(1)->he_next()->edge()->boundary())) {//ÉÏÃæ±ß½ç£¬ÏÂÃæ²»ÊÇ£¬É¾Ãæ£¬¸Ä×ßÏò£¬É¾±ß
+	//				else if (e->halfedge(0)->he_prev()->edge()->boundary() && !(e->halfedge(1)->he_next()->edge()->boundary())) {//ä¸Šé¢è¾¹ç•Œï¼Œä¸‹é¢ä¸æ˜¯ï¼Œåˆ é¢ï¼Œæ”¹èµ°å‘ï¼Œåˆ è¾¹
 
 
 	//					if (e->halfedge(1)->he_prev()->he_sym() != NULL) {
@@ -327,12 +327,12 @@ void Simplification::contraction(CMyMesh *mesh,Pair p) {
 	//						mesh->deleteFace((CMyFace*)pH2->face());
 	//						util::deleteEdge(mesh, pHe3->edge());
 	//						util::deleteEdge(mesh, pHe5->edge());
-	//						//Á´½Ó¶ÔÅ¼ºÍ±ß
+	//						//é“¾æŽ¥å¯¹å¶å’Œè¾¹
 	//						pHe4->he_sym() = pHe3;
 	//						pHe3->edge() = pHe4->edge();
 	//						pHe6->he_sym() = pHe5;
 	//						pHe5->edge() = pHe6->edge();
-	//						//¸Ä±äËùÓÐºÍp2ÓÐ¹ØµÄ°ë±ß×ßÏò
+	//						//æ”¹å˜æ‰€æœ‰å’Œp2æœ‰å…³çš„åŠè¾¹èµ°å‘
 	//						for (CMyMesh::VertexInHalfedgeIterator vieiter(mesh, v); !vieiter.end(); ++vieiter) {
 	//							CHalfEdge *pH = *vieiter;
 	//							pH->target() = p.p1;
