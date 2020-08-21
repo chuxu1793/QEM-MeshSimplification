@@ -36,14 +36,19 @@ public:
 
 	/*! Pointer to the edge attaching to the current halfedge. */
 	CEdge       *   &  edge()    { return m_edge;   };
+
 	/*! Target vertex of the current halfedge. */
 	CVertex     *   &  vertex()  { return m_vertex; };
+
 	/*! Target vertex of the current halfedge. */
 	CVertex     *   &  target()  { return m_vertex; };
+
 	/*! Source vertex of the current halfedge. */
-	CVertex     *   &  source()  { return m_prev->vertex();};
+	CVertex     *   &  source()  { return m_prev->vertex();}; // 当前半边的源点：前一条半边的终点
+
 	/*! Previous halfedge of the current halfedge. */
 	CHalfEdge *  &  he_prev() { return m_prev;};
+
 	/*! Next halfedge of the current halfedge. */
 	CHalfEdge *  &  he_next() { return m_next;};
 
@@ -83,14 +88,19 @@ public:
 protected:
 	/*! Edge, current halfedge attached to. */
 	CEdge       *     m_edge; // 当前半边所依附的边
+
 	/*! Face, current halfedge attached to. */
 	CFace       *     m_face; // 面，当前半边所依附的面
+
 	/*! Target vertex of the current halfedge. */
 	CVertex     *     m_vertex;		//target vertex  当前半边的终点
+
 	/*! Previous halfedge of the current halfedge, in the same face. */
 	CHalfEdge	*	  m_prev; // 当前半边的前一个半边，均在同一个面中
+
 	/*! Next halfedge of the current halfedge, in the same face. */
 	CHalfEdge	*     m_next; // 当前半边的后一个半边，均在同一个面中
+
 	/*! The string of the current halfedge. */
 	std::string       m_string;
 };

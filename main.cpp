@@ -2,10 +2,9 @@
 #include <stdlib.h>
 #include <math.h>
 #include <GL\glut.h>
-#include "viewer\Arcball.h"                           /*  Arc Ball  Interface         */
-#include"Simplification.h"
+#include "viewer\Arcball.h" /*  Arc Ball  Interface         */
+#include "Simplification.h"
 #include "MyMesh.h"
-
 
 /* window width and height */
 int win_width, win_height;
@@ -13,8 +12,8 @@ int gButton;
 int startx, starty;
 int shadeFlag = 0;
 /* rotation quaternion and translation vector for the object */
-CQrot       ObjRot(0, 0, 1, 0);
-CPoint      ObjTrans(0, 0, 0);
+CQrot ObjRot(0, 0, 1, 0);
+CPoint ObjTrans(0, 0, 0);
 
 /* global mesh */
 CMyMesh mesh;
@@ -25,7 +24,6 @@ int textureFlag = 2;
 /* texture id and image */
 GLuint texName;
 //RgbImage image;
-
 
 /*! setup the object, transform from the world to the object coordinate system */
 void setupObject(void)
@@ -38,7 +36,8 @@ void setupObject(void)
 }
 
 /*! the eye is always fixed at world z = +5 */
-void setupEye(void) {
+void setupEye(void)
+{
 	glLoadIdentity();
 	gluLookAt(0, 0, 5, 0, 0, 0, 0, 1, 0);
 }
@@ -46,7 +45,7 @@ void setupEye(void) {
 /*! setup light */
 void setupLight()
 {
-	GLfloat lightOnePosition[4] = { 0, 0, 1, 0 };
+	GLfloat lightOnePosition[4] = {0, 0, 1, 0};
 	glLightfv(GL_LIGHT1, GL_POSITION, lightOnePosition);
 }
 
@@ -55,21 +54,21 @@ void draw_axis()
 {
 	glLineWidth(2.0);
 	//x axis
-	glColor3f(1.0, 0.0, 0.0);	//red
+	glColor3f(1.0, 0.0, 0.0); //red
 	glBegin(GL_LINES);
 	glVertex3d(0, 0, 0);
 	glVertex3d(1, 0, 0);
 	glEnd();
 
 	//y axis
-	glColor3f(0.0, 1.0, 0);		//green
+	glColor3f(0.0, 1.0, 0); //green
 	glBegin(GL_LINES);
 	glVertex3d(0, 0, 0);
 	glVertex3d(0, 1, 0);
 	glEnd();
 
 	//z axis
-	glColor3f(0.0, 0.0, 1.0);	//blue
+	glColor3f(0.0, 0.0, 1.0); //blue
 	glBegin(GL_LINES);
 	glVertex3d(0, 0, 0);
 	glVertex3d(0, 0, 1);
@@ -85,13 +84,13 @@ void draw_mesh()
 	glBegin(GL_TRIANGLES);
 	for (CMyMesh::MeshFaceIterator fiter(&mesh); !fiter.end(); ++fiter)
 	{
-		CMyFace * pf = *fiter;
+		CMyFace *pf = *fiter;
 		for (CMyMesh::FaceVertexIterator fviter(pf); !fviter.end(); ++fviter)
 		{
-			CMyVertex * v = *fviter;
-			CPoint & pt = v->point();
-			CPoint2 & uv = v->uv();
-			CPoint & rgb = v->rgb();
+			CMyVertex *v = *fviter;
+			CPoint &pt = v->point();
+			CPoint2 &uv = v->uv();
+			CPoint &rgb = v->rgb();
 			CPoint n;
 			switch (shadeFlag)
 			{
@@ -118,11 +117,11 @@ void draw_sharp_edges()
 	glBegin(GL_LINES);
 	for (CMyMesh::MeshEdgeIterator eiter(&mesh); !eiter.end(); ++eiter)
 	{
-		CMyEdge * pE = *eiter;
+		CMyEdge *pE = *eiter;
 		if (pE->sharp() == true)
 		{
-			CMyVertex * p0 = mesh.edgeVertex1(pE);
-			CMyVertex * p1 = mesh.edgeVertex2(pE);
+			CMyVertex *p0 = mesh.edgeVertex1(pE);
+			CMyVertex *p1 = mesh.edgeVertex2(pE);
 			glColor3f(1.0f, 0.0f, 0.0f);
 			glVertex3f(p0->point()[0], p0->point()[1], p0->point()[2]);
 			glVertex3f(p1->point()[0], p1->point()[1], p1->point()[2]);
@@ -165,15 +164,15 @@ void reshape(int w, int h)
 	win_height = h;
 
 	ar = (float)(w) / h;
-	glViewport(0, 0, w, h);               /* Set Viewport */
+	glViewport(0, 0, w, h); /* Set Viewport */
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
 	// magic imageing commands
 	gluPerspective(40.0, /* field of view in degrees */
-		ar, /* aspect ratio */
-		1.0, /* Z near */
-		100.0 /* Z far */);
+				   ar,	 /* aspect ratio */
+				   1.0,	 /* Z near */
+				   100.0 /* Z far */);
 
 	glMatrixMode(GL_MODELVIEW);
 
@@ -237,10 +236,11 @@ void keyBoard(unsigned char key, int x, int y)
 }
 
 /*! setup GL states */
-void setupGLstate() {
-	GLfloat lightOneColor[] = { 0.8, 0.8, 0.8, 1.0 };
-	GLfloat globalAmb[] = { .1, .1, .1, 1 };
-	GLfloat lightOnePosition[] = { .0, 0.0, 1.0, 1.0 };
+void setupGLstate()
+{
+	GLfloat lightOneColor[] = {0.8, 0.8, 0.8, 1.0};
+	GLfloat globalAmb[] = {.1, .1, .1, 1};
+	GLfloat lightOnePosition[] = {.0, 0.0, 1.0, 1.0};
 
 	glEnable(GL_CULL_FACE);
 	glFrontFace(GL_CCW);
@@ -262,7 +262,8 @@ void setupGLstate() {
 }
 
 /*! mouse click call back function */
-void  mouseClick(int button, int state, int x, int y) {
+void mouseClick(int button, int state, int x, int y)
+{
 	/* set up an arcball around the Eye's center
 	switch y coordinates to right handed system  */
 
@@ -272,13 +273,15 @@ void  mouseClick(int button, int state, int x, int y) {
 		arcball = CArcball(win_width, win_height, x - win_width / 2, win_height - y - win_height / 2);
 	}
 
-	if (button == GLUT_MIDDLE_BUTTON && state == GLUT_DOWN) {
+	if (button == GLUT_MIDDLE_BUTTON && state == GLUT_DOWN)
+	{
 		startx = x;
 		starty = y;
 		gButton = GLUT_MIDDLE_BUTTON;
 	}
 
-	if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN) {
+	if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
+	{
 		startx = x;
 		starty = y;
 		gButton = GLUT_RIGHT_BUTTON;
@@ -290,7 +293,7 @@ void  mouseClick(int button, int state, int x, int y) {
 void mouseMove(int x, int y)
 {
 	CPoint trans;
-	CQrot  rot;
+	CQrot rot;
 
 	/* rotation, call arcball */
 	if (gButton == GLUT_LEFT_BUTTON)
@@ -304,7 +307,7 @@ void mouseMove(int x, int y)
 	if (gButton == GLUT_MIDDLE_BUTTON)
 	{
 		double scale = 10. / win_height;
-		trans = CPoint(scale*(x - startx), scale*(starty - y), 0);
+		trans = CPoint(scale * (x - startx), scale * (starty - y), 0);
 		startx = x;
 		starty = y;
 		ObjTrans = ObjTrans + trans;
@@ -312,34 +315,33 @@ void mouseMove(int x, int y)
 	}
 
 	/* zoom in and out */
-	if (gButton == GLUT_RIGHT_BUTTON) {
+	if (gButton == GLUT_RIGHT_BUTTON)
+	{
 		double scale = 10. / win_height;
-		trans = CPoint(0, 0, scale*(starty - y));
+		trans = CPoint(0, 0, scale * (starty - y));
 		startx = x;
 		starty = y;
 		ObjTrans = ObjTrans + trans;
 		glutPostRedisplay();
 	}
-
 }
-
 
 /*! Normalize mesh
 * \param pMesh the input mesh
 */
-void normalize_mesh(CMyMesh * pMesh)
+void normalize_mesh(CMyMesh *pMesh)
 {
 	CPoint s(0, 0, 0);
 	for (CMyMesh::MeshVertexIterator viter(pMesh); !viter.end(); ++viter)
 	{
-		CMyVertex * v = *viter;
+		CMyVertex *v = *viter;
 		s = s + v->point();
 	}
 	s = s / pMesh->numVertices();
 
 	for (CMyMesh::MeshVertexIterator viter(pMesh); !viter.end(); ++viter)
 	{
-		CMyVertex * v = *viter;
+		CMyVertex *v = *viter;
 		CPoint p = v->point();
 		p = p - s;
 		v->point() = p;
@@ -348,7 +350,7 @@ void normalize_mesh(CMyMesh * pMesh)
 	double d = 0;
 	for (CMyMesh::MeshVertexIterator viter(pMesh); !viter.end(); ++viter)
 	{
-		CMyVertex * v = *viter;
+		CMyVertex *v = *viter;
 		CPoint p = v->point();
 		for (int k = 0; k < 3; k++)
 		{
@@ -358,7 +360,7 @@ void normalize_mesh(CMyMesh * pMesh)
 
 	for (CMyMesh::MeshVertexIterator viter(pMesh); !viter.end(); ++viter)
 	{
-		CMyVertex * v = *viter;
+		CMyVertex *v = *viter;
 		CPoint p = v->point();
 		p = p / d;
 		v->point() = p;
@@ -368,18 +370,18 @@ void normalize_mesh(CMyMesh * pMesh)
 /*! Compute the face normal and vertex normal
 * \param pMesh the input mesh
 */
-void compute_normal(CMyMesh * pMesh)
+void compute_normal(CMyMesh *pMesh)
 {
 	for (CMyMesh::MeshVertexIterator viter(pMesh); !viter.end(); ++viter)
 	{
-		CMyVertex * v = *viter;
+		CMyVertex *v = *viter;
 		CPoint n(0, 0, 0);
 		for (CMyMesh::VertexFaceIterator vfiter(v); !vfiter.end(); ++vfiter)
 		{
-			CMyFace * pF = *vfiter;
+			CMyFace *pF = *vfiter;
 
 			CPoint p[3];
-			CHalfEdge * he = pF->halfedge();
+			CHalfEdge *he = pF->halfedge();
 			for (int k = 0; k < 3; k++)
 			{
 				p[k] = he->target()->point();
@@ -396,29 +398,28 @@ void compute_normal(CMyMesh * pMesh)
 	}
 };
 
-
-void init_openGL(int argc, char * argv[])
+void init_openGL(int argc, char *argv[])
 {
 	/* glut stuff */
-	glutInit(&argc, argv);                /* Initialize GLUT */
+	glutInit(&argc, argv); /* Initialize GLUT */
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glutInitWindowSize(800, 600);
-	glutCreateWindow("Mesh Viewer");	  /* Create window with given title */
+	glutCreateWindow("Mesh Viewer"); /* Create window with given title */
 	glViewport(0, 0, 800, 600);
 
-	glutDisplayFunc(display);             /* Set-up callback functions */
+	glutDisplayFunc(display); /* Set-up callback functions */
 	glutReshapeFunc(reshape);
 	glutMouseFunc(mouseClick);
 	glutMotionFunc(mouseMove);
 	glutKeyboardFunc(keyBoard);
 	setupGLstate();
 
-	glutMainLoop();                       /* Start GLUT event-processing loop */
+	glutMainLoop(); /* Start GLUT event-processing loop */
 }
 
 /*! main function for viewer
 */
-int main(int argc, char * argv[])
+int main(int argc, char *argv[])
 {
 	if (argc != 2)
 	{
@@ -426,7 +427,6 @@ int main(int argc, char * argv[])
 		return -1;
 	}
 
-	
 	//srand(unsigned(time(0)));
 	//mesh.setStrcture();
 	//cout<< "插入点数" << endl;
@@ -459,8 +459,8 @@ int main(int argc, char * argv[])
 	Simplification s;
 	//int i = 0;
 	//while (i < 2) {
-	s.simplificate(&mesh,0.01);
-		//i++;
+	s.simplificate(&mesh, 0.01);
+	//i++;
 	//}
 	/*for (CMyMesh::MeshVertexIterator i(&mesh); !i.end(); i++) {
 		CVertex *a = *i;

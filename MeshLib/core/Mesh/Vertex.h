@@ -127,11 +127,11 @@ namespace MeshLib{
   }; //class CVertex
 
 
-/*! \brief The most counter clockwise incoming halfedge of the vertex
+/*! \brief The most counter clockwise incoming halfedge of the vertex 顶点的逆时针“入半边”
  *  \return the most CCW in halfedge
 */
  
-inline CHalfEdge *  CVertex::most_ccw_in_halfedge()  
+inline CHalfEdge *  CVertex::most_ccw_in_halfedge()
 { 
 	//for interior vertex 对于内部顶点（非边界点）
 	if( !m_boundary )
@@ -172,7 +172,7 @@ inline CHalfEdge *  CVertex::most_clw_in_halfedge()
 	return m_halfedge;
 };
 
-//most counter clockwise out halfedge
+//most counter clockwise out halfedge 最逆时针出半边？
 
 inline CHalfEdge *  CVertex::most_ccw_out_halfedge()  
 { 

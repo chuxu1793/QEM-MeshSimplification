@@ -937,8 +937,8 @@ CVertex * CBaseMesh<CVertex,CEdge,CFace,CHalfEdge>::createVertex( int id )
 	CVertex * v = new CVertex();
 	assert( v != NULL );
 	v->id() = id;
-	m_verts.push_back( v );
-	m_map_vert.insert( std::pair<int,CVertex*>(id,v));
+	m_verts.push_back( v ); // 网格的顶点list
+	m_map_vert.insert( std::pair<int,CVertex*>(id,v)); // id和顶点的map
 	return v;
 };
 
@@ -948,113 +948,110 @@ Read an .obj file.
 \param filename the filename .obj file name
 */
 
-template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
-void CBaseMesh<CVertex,CEdge,CFace,CHalfEdge>::read_obj( const char * filename )
+template <typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
+void CBaseMesh<CVertex, CEdge, CFace, CHalfEdge>::read_obj(const char *filename)
 {
 
 	std::fstream f(filename, std::fstream::in);
-	if( f.fail() ) return;
+	if (f.fail())
+		return;
 
 	char cmd[1024];
 
-	int  vid = 1;
-	int  fid = 1;
-	
+	int vid = 1;
+	int fid = 1;
+
 	bool with_uv = false;
 	bool with_normal = false;
 
 	std::vector<CPoint2> uvs;
 	std::vector<CPoint> normals;
 
+	while (f.getline(cmd, 1024))
+	{
+		std::string line(cmd);
+		line = strutil::trim(line);
 
-	while ( f.getline( cmd, 1024) )
-    {
-		std::string line( cmd );
-		line = strutil::trim( line );
-
-		strutil::Tokenizer stokenizer( line, " \t\r\n" );
+		strutil::Tokenizer stokenizer(line, " \t\r\n");
 
 		stokenizer.nextToken();
 		std::string token = stokenizer.getToken();
-		
-		if( token == "v" )
+
+		if (token == "v")
 		{
 			CPoint p;
-			for( int i = 0; i < 3; i ++ )
+			for (int i = 0; i < 3; i++)
 			{
 				stokenizer.nextToken();
 				token = stokenizer.getToken();
 				p[i] = strutil::parseString<float>(token);
 			}
-			
-			CVertex * v = createVertex( vid);
+
+			CVertex *v = createVertex(vid);
 			v->point() = p;
-			vid ++;
+			vid++;
 			continue;
 		}
 
-
-		if( token == "vt" )
+		if (token == "vt")
 		{
 			with_uv = true;
 			CPoint2 uv;
-			for( int i = 0; i < 2; i ++ )
+			for (int i = 0; i < 2; i++)
 			{
 				stokenizer.nextToken();
 				token = stokenizer.getToken();
 				uv[i] = strutil::parseString<float>(token);
 			}
-			uvs.push_back( uv );
+			uvs.push_back(uv); // uv坐标集合
 			continue;
 		}
 
-
-		if ( token ==  "vn" )
+		if (token == "vn")
 		{
 			with_normal = true;
 
 			CPoint n;
-			for( int i = 0; i < 3; i ++ )
+			for (int i = 0; i < 3; i++)
 			{
 				stokenizer.nextToken();
 				token = stokenizer.getToken();
 				n[i] = strutil::parseString<float>(token);
 			}
-			normals.push_back( n );
+			normals.push_back(n); // 顶点的法线集合
 			continue;
 		}
 
-
-
-
-		if ( token == "f" )
+		if (token == "f")
 		{
-			CVertex* v[3];
-			for( int i = 0 ; i < 3; i ++ )
+			CVertex *v[3];
+			for (int i = 0; i < 3; i++)
 			{
 				stokenizer.nextToken();
 				token = stokenizer.getToken();
-				
-				
-				strutil::Tokenizer tokenizer( token, " /\t\r\n" );
-				
-				int ids[3];
+
+				strutil::Tokenizer tokenizer(token, " /\t\r\n");
+
+				int ids[3]; // 0：位置   1：uv    2：法线    这三个值均是索引
 				int k = 0;
-				while( tokenizer.nextToken() )
+				while (tokenizer.nextToken())
 				{
 					std::string token = tokenizer.getToken();
 					ids[k] = strutil::parseString<int>(token);
-					k ++;
+					k++;
 				}
 
-				
-				v[i] = m_map_vert[ ids[0] ];
-				if( with_uv )
-					v[i]->uv() = uvs[ ids[1]-1 ];
-				if( with_normal )
-					v[i]->normal() = normals[ ids[2]-1 ];
+				// 顶点的位置，纹理坐标，法线信息均是通过索引获取
+				v[i] = m_map_vert[ids[0]];
+
+				if (with_uv)
+					v[i]->uv() = uvs[ids[1] - 1]; // 可能是下标起始值不同，一个是0，一个是1
+
+				if (with_normal)
+					v[i]->normal() = normals[ids[2] - 1];
 			}
-			createFace( v, fid++ );
+
+			createFace(v, fid++); // 由3个顶点创建面
 		}
 	}
 
@@ -1063,66 +1060,68 @@ void CBaseMesh<CVertex,CEdge,CFace,CHalfEdge>::read_obj( const char * filename )
 	labelBoundary();
 }
 
-/*! Create a face
+/*! Create a face 创建面
 	\param v an array of vertices
 	\param id face id
 	\return pointer to the new face
 	*/
 
-template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
-CFace * CBaseMesh<CVertex,CEdge,CFace,CHalfEdge>::createFace( tVertex  v[] , int id )
+template <typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
+CFace *CBaseMesh<CVertex, CEdge, CFace, CHalfEdge>::createFace(tVertex v[], int id) // 三角面，三个顶点
 {
-	  CFace * f = new CFace();
-	  assert( f != NULL );
-	  f->id() = id;
-	  m_faces.push_back( f );
-	  m_map_face.insert( std::pair<int,tFace>(id,f) );
+	CFace *f = new CFace();
+	assert(f != NULL);
+	f->id() = id;
+	m_faces.push_back(f);							 // 面集合
+	m_map_face.insert(std::pair<int, tFace>(id, f)); // 面id与面的map
 
-		//create halfedges
-		tHalfEdge hes[3];
+	//create halfedges
+	tHalfEdge hes[3];
 
-		for(int i = 0; i < 3; i ++ )
+	// 创建3个半边，及其与顶点的互相连接
+	for (int i = 0; i < 3; i++) //
+	{
+		hes[i] = new CHalfEdge;
+		assert(hes[i]);
+		CVertex *vert = v[i];
+		hes[i]->vertex() = vert;   // 半边对应一个顶点（终点）
+		vert->halfedge() = hes[i]; // 顶点对应一个半边
+	}
+
+	//linking to each other
+	// 半边围绕一个面的互相连接
+	for (int i = 0; i < 3; i++)
+	{
+		hes[i]->he_next() = hes[(i + 1) % 3]; // 0：1     1：2     2：0
+		hes[i]->he_prev() = hes[(i + 2) % 3]; // 0：2     1：0     2：1
+	}
+
+	//linking to face
+	// 半边与面的互相连接
+	for (int i = 0; i < 3; i++)
+	{
+		hes[i]->face() = f;
+		f->halfedge() = hes[i];
+	}
+
+	//connecting with edge  创建边并和半边关联上
+	for (int i = 0; i < 3; i++) // 创建3条边
+	{
+		tEdge e = createEdge(v[i], v[(i + 2) % 3]); // 0-2  1-0  2-1  查找或创建新边
+		if (e->halfedge(0) == NULL)
 		{
-			hes[i] = new CHalfEdge;
-			assert( hes[i] );
-			CVertex * vert =  v[i];
-			hes[i]->vertex() = vert;
-			vert->halfedge() = hes[i];
+			e->halfedge(0) = hes[i];
 		}
-
-		//linking to each other
-		for(int i = 0; i < 3; i ++ )
+		else
 		{
-			hes[i]->he_next() = hes[(i+1)%3];
-			hes[i]->he_prev() = hes[(i+2)%3];
+			assert(e->halfedge(1) == NULL);
+			e->halfedge(1) = hes[i];
 		}
+		hes[i]->edge() = e; // 半边对应的边
+	}
 
-		//linking to face
-		for(int i = 0; i < 3; i ++ )
-		{
-			hes[i]->face()   = f;
-			f->halfedge()    = hes[i];
-		}
-
-		//connecting with edge
-		for(int i = 0; i < 3; i ++ )
-		{
-			tEdge e = createEdge( v[i], v[(i+2)%3] );
-			if( e->halfedge(0)  == NULL )
-			{
-				e->halfedge(0) = hes[i];
-			}
-			else
-			{
-				assert( e->halfedge(1) == NULL );
-				e->halfedge(1) = hes[i];
-			}
-			hes[i]->edge() = e;
-		}
-
-		return f;
+	return f;
 };
-
 
 //access id->v
 /*!
@@ -1178,41 +1177,40 @@ inline int CBaseMesh<CVertex,CEdge,CFace,CHalfEdge>::faceId( tFace   f )
 \return pointer to the new edge
 */
 
-template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
-CEdge * CBaseMesh<CVertex,CEdge,CFace,CHalfEdge>::createEdge( tVertex  v1, tVertex  v2 )
+// 先查找是否有，有就直接返回，没有就新建
+template <typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
+CEdge *CBaseMesh<CVertex, CEdge, CFace, CHalfEdge>::createEdge(tVertex v1, tVertex v2)
 {
-	tVertex pV = ( v1->id()<v2->id())?v1:v2;
-	std::list<CEdge*> & ledges = (std::list<CEdge*> &) pV->edges();
+	tVertex pV = (v1->id() < v2->id()) ? v1 : v2; // pV是v1与v2中id值较小的那个顶点
+	std::list<CEdge *> &ledges = (std::list<CEdge *> &)pV->edges(); // 取出该顶点的所有边
 
-	
-	for( std::list<CEdge*>::iterator te = ledges.begin(); te != ledges.end(); te ++ )
+	// 遍历id值较小的顶点的所有对应的边
+	// 若某个边的0号半边的两个端点与输入的顶点相等，则认为边已经被创建了，直接返回就好，否则创建新边
+	for (std::list<CEdge *>::iterator te = ledges.begin(); te != ledges.end(); te++)
 	{
-		CEdge	  * pE = *te;
-		CHalfEdge * pH = (CHalfEdge*) pE->halfedge(0);
-	
-		if( pH->source() == v1 && pH->target() == v2 ) 
+		CEdge *pE = *te;
+		CHalfEdge *pH = (CHalfEdge *)pE->halfedge(0); // 对于每个边，取出它的0号半边
+
+		if (pH->source() == v1 && pH->target() == v2) // 如果半边的源点是v1，终点是v2，返回该边
 		{
-			return pE;		
+			return pE;
 		}
-		if( pH->source() == v2 && pH->target() == v1 )
+
+		if (pH->source() == v2 && pH->target() == v1) // 如果半边的源点是v2，终点是v1
 		{
 			return pE;
 		}
 	}
 
 	//new edge
-	CEdge * e = new CEdge;
-	assert( e != NULL );
-	m_edges.push_back( e );
+	CEdge *e = new CEdge;
+	assert(e != NULL);
+	m_edges.push_back(e);
 	e->id() = (int)m_edges.size();
-	ledges.push_back( e );
-
+	ledges.push_back(e);
 
 	return e;
-
 };
-
-
 
 //access vertex->edge
 /*!
@@ -1996,59 +1994,61 @@ void CBaseMesh<CVertex,CEdge,CFace,CHalfEdge>::read_off( const char * input )
 
 };
 
-
 /*!
 	Label boundary edges, vertices
 */
-template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
-void CBaseMesh<CVertex,CEdge,CFace,CHalfEdge>::labelBoundary( void )
+template <typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
+void CBaseMesh<CVertex, CEdge, CFace, CHalfEdge>::labelBoundary(void)
 {
-	
+
 	//Label boundary edges
-	for(std::list<CEdge*>::iterator eiter= m_edges.begin() ; eiter != m_edges.end() ; ++ eiter )
+	for (std::list<CEdge *>::iterator eiter = m_edges.begin(); eiter != m_edges.end(); ++eiter)
 	{
-		CEdge *     edge = *eiter;
-		CHalfEdge * he[2];
+		CEdge *edge = *eiter;
+		CHalfEdge *he[2];
 
-		he[0] = (CHalfEdge*)edge->halfedge(0);
-		he[1] = (CHalfEdge*)edge->halfedge(1);
-		
-		assert( he[0] != NULL );
-		
+		he[0] = (CHalfEdge *)edge->halfedge(0);
+		he[1] = (CHalfEdge *)edge->halfedge(1);
 
-		if( he[1] != NULL )
+		assert(he[0] != NULL); // 0号半边一定不为空，因为任意一个边都是先填充0号半边
+
+		if (he[1] != NULL)
 		{
-			assert( he[0]->target() == he[1]->source() && he[0]->source() == he[1]->target() );
+			// 如果1号半边不为空，先断言1号半边的首尾顶点与0号的尾首是对应的
+			assert(he[0]->target() == he[1]->source() && he[0]->source() == he[1]->target());
 
-			if( he[0]->target()->id() < he[0]->source()->id() )
+			// 如果0号半边的源点id小于终点id，则交换边的两个半边次序
+			if (he[0]->target()->id() < he[0]->source()->id())
 			{
-				edge->halfedge(0 ) = he[1];
-				edge->halfedge(1 ) = he[0];
+				edge->halfedge(0) = he[1];
+				edge->halfedge(1) = he[0];
 			}
 
-			assert( edgeVertex1(edge)->id() < edgeVertex2(edge)->id() );
+			assert(edgeVertex1(edge)->id() < edgeVertex2(edge)->id()); // 确保边的两个顶点的id次序
 		}
-		else
+		else // 1号半边为空，表示当前边是边界
 		{
-			he[0]->vertex()->boundary() = true;
-			he[0]->he_prev()->vertex()->boundary()  = true;
+			he[0]->vertex()->boundary() = true;  // 0号半边的顶点（终点）设为边界点
+			he[0]->he_prev()->vertex()->boundary() = true; // 0号半边的前一个半边的顶点（即0号半边的源点）也设为边界点
 		}
-
 	}
 
-	std::list<CVertex*> dangling_verts;
+
+	// 收集没有半边的顶点
+	std::list<CVertex *> dangling_verts;
 	//Label boundary edges
-	for(std::list<CVertex*>::iterator viter = m_verts.begin();  viter != m_verts.end() ; ++ viter )
-	{
-		tVertex     v = *viter;
-		if( v->halfedge() != NULL ) continue;
-		dangling_verts.push_back( v );
-	}
-
-	for( std::list<CVertex*>::iterator  viter = dangling_verts.begin() ; viter != dangling_verts.end(); ++ viter )
+	for (std::list<CVertex *>::iterator viter = m_verts.begin(); viter != m_verts.end(); ++viter)
 	{
 		tVertex v = *viter;
-		m_verts.remove( v );
+		if (v->halfedge() != NULL)
+			continue;
+		dangling_verts.push_back(v);
+	}
+	// 移除没有半边的顶点
+	for (std::list<CVertex *>::iterator viter = dangling_verts.begin(); viter != dangling_verts.end(); ++viter)
+	{
+		tVertex v = *viter;
+		m_verts.remove(v);
 		delete v;
 		v = NULL;
 	}
@@ -2056,20 +2056,19 @@ void CBaseMesh<CVertex,CEdge,CFace,CHalfEdge>::labelBoundary( void )
 	//Arrange the boundary half_edge of boundary vertices, to make its halfedge
 	//to be the most ccw in half_edge
 
-	for(std::list<CVertex*>::iterator viter = m_verts.begin();  viter != m_verts.end() ; ++ viter )
+	for (std::list<CVertex *>::iterator viter = m_verts.begin(); viter != m_verts.end(); ++viter)
 	{
-		tVertex     v = *viter;
-		if( !v->boundary() ) continue;
+		tVertex v = *viter;
+		if (!v->boundary())
+			continue;
 
-		CHalfEdge * he = (CHalfEdge*)v->halfedge();
-		while( he->he_sym() != NULL )
+		CHalfEdge *he = (CHalfEdge *)v->halfedge();
+		while (he->he_sym() != NULL)
 		{
-			he = (CHalfEdge*)he->ccw_rotate_about_target();
+			he = (CHalfEdge *)he->ccw_rotate_about_target();
 		}
 		v->halfedge() = he;
 	}
-
-
 };
 
 /*! Create a face

@@ -226,13 +226,13 @@ public:
 
 
 	/*!
-		VertexVertexIterator postfix operator ++, goes to the next neighboring vertex CCWly
+		VertexVertexIterator postfix operator ++, goes to the next neighboring vertex CCWly 下一个逆时针的邻近点？
 	*/
 	void operator++(int) //postfix
 	{
 		assert( m_halfedge != NULL ); 
 		
-		if( !m_vertex->boundary() )
+		if( !m_vertex->boundary() ) // 内部顶点
 		{
 			if( m_halfedge != (CHalfEdge*)m_vertex->most_ccw_out_halfedge() )
 			{
@@ -764,7 +764,7 @@ private:
 
 // mesh->v
 /*!
-	\brief MeshVertexIterator, transverse all the vertices in the mesh.
+	\brief MeshVertexIterator, transverse all the vertices in the mesh. 遍历mesh中的所有顶点
 */
 
 template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
