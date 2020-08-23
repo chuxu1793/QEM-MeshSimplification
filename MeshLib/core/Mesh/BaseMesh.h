@@ -1057,7 +1057,7 @@ void CBaseMesh<CVertex, CEdge, CFace, CHalfEdge>::read_obj(const char *filename)
 
 	f.close();
 
-	labelBoundary();
+	labelBoundary(); // 标记边界点
 }
 
 /*! Create a face 创建面
@@ -1108,11 +1108,11 @@ CFace *CBaseMesh<CVertex, CEdge, CFace, CHalfEdge>::createFace(tVertex v[], int 
 	for (int i = 0; i < 3; i++) // 创建3条边
 	{
 		tEdge e = createEdge(v[i], v[(i + 2) % 3]); // 0-2  1-0  2-1  查找或创建新边
-		if (e->halfedge(0) == NULL)
+		if (e->halfedge(0) == NULL) // e的0号半边为空表示该边是新建的
 		{
 			e->halfedge(0) = hes[i];
 		}
-		else
+		else // 0号半边非空表示该边已经创建了，则把该半边赋值给该边的1号半边
 		{
 			assert(e->halfedge(1) == NULL);
 			e->halfedge(1) = hes[i];
@@ -2036,7 +2036,6 @@ void CBaseMesh<CVertex, CEdge, CFace, CHalfEdge>::labelBoundary(void)
 
 	// 收集没有半边的顶点
 	std::list<CVertex *> dangling_verts;
-	//Label boundary edges
 	for (std::list<CVertex *>::iterator viter = m_verts.begin(); viter != m_verts.end(); ++viter)
 	{
 		tVertex v = *viter;
@@ -2056,6 +2055,7 @@ void CBaseMesh<CVertex, CEdge, CFace, CHalfEdge>::labelBoundary(void)
 	//Arrange the boundary half_edge of boundary vertices, to make its halfedge
 	//to be the most ccw in half_edge
 
+	// 更新边界点的半边，
 	for (std::list<CVertex *>::iterator viter = m_verts.begin(); viter != m_verts.end(); ++viter)
 	{
 		tVertex v = *viter;
@@ -2063,9 +2063,9 @@ void CBaseMesh<CVertex, CEdge, CFace, CHalfEdge>::labelBoundary(void)
 			continue;
 
 		CHalfEdge *he = (CHalfEdge *)v->halfedge();
-		while (he->he_sym() != NULL)
+		while (he->he_sym() != NULL) // 当前半边对应的另一对半边不为空
 		{
-			he = (CHalfEdge *)he->ccw_rotate_about_target();
+			he = (CHalfEdge *)he->ccw_rotate_about_target(); // 当前半边赋值为其前一个半边
 		}
 		v->halfedge() = he;
 	}
