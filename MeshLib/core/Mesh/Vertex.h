@@ -83,9 +83,9 @@ namespace MeshLib{
 	/*! Read traits from the string. 
 	*/
 	void _from_string() {};
-	
-        Matrix4d getQ() { return Q; };
-        void setQ(Matrix4d m) { Q = m; };
+
+	Matrix4d getQ() { return Q; };
+	void setQ(Matrix4d m) { Q = m; };
 	/*!	Adjacent edges, temporarily used for loading the mesh
 	 */
 	std::list<CEdge*> & edges() { return m_edges; };

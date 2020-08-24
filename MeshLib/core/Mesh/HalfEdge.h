@@ -107,10 +107,11 @@ protected:
 
 //roate the halfedge about its target vertex CCWly
 
-inline CHalfEdge * CHalfEdge::ccw_rotate_about_target()
+inline CHalfEdge *CHalfEdge::ccw_rotate_about_target()
 {
-	CHalfEdge * he_dual = he_sym();
-	if( he_dual == NULL ) return NULL;
+	CHalfEdge *he_dual = he_sym();
+	if (he_dual == NULL)
+		return NULL;
 
 	return he_dual->he_prev();
 };

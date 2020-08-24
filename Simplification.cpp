@@ -1,14 +1,18 @@
 #include "Simplification.h"
 #include "Pair.h"
 #include <algorithm>
+
+
 void Simplification::initQ(CMyMesh *mesh)
 {
+	// 初始化mesh中每个顶点的Q值
 	for (CMyMesh::MeshVertexIterator viter(mesh); !viter.end(); ++viter)
 	{
 		CVertex *pV = *viter;
 		pV->setQ(util::getQ(pV));
 	}
 }
+
 void Simplification::getAllValidPair(CMyMesh *mesh)
 {
 	for (CMyMesh::MeshEdgeIterator eiter(mesh); !eiter.end(); ++eiter)
@@ -399,7 +403,7 @@ void Simplification::simplificate(CMyMesh *mesh, double ratio)
 	getAllCost();
 	//BuildPairHeap();
 	double a = mesh->numFaces();
-	while (mesh->numFaces() > a * ratio) // 
+	while (mesh->numFaces() > a * ratio) //
 	{
 		//BuildPairHeap();
 		sort(allPair.begin(), allPair.end(), cmp1);

@@ -462,7 +462,7 @@ private:
 
 // v->face
 /*!
-	\brief VertexFaceIterator, transverse all the neighboring faces of a vertex ccwly.
+	\brief VertexFaceIterator, transverse all the neighboring faces of a vertex ccwly. 遍历一个顶点的所有邻接面
 */
 template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
 class VertexFaceIterator
@@ -482,7 +482,7 @@ public:
 	*/
 	~VertexFaceIterator(){};
 	/*!
-		VertexFaceIterator prefix operator ++, goes to the next neighboring face CCWly
+		VertexFaceIterator prefix operator ++, goes to the next neighboring face CCWly 按逆时针前往下一个邻接面 
 	*/
 	void operator++() //prefix
 	{
