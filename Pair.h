@@ -1,6 +1,8 @@
 #pragma once
 #include"MyMesh.h"
-class Pair{
+
+class Pair
+{
 public:
 	CVertex *p1;
 	CVertex *p2;

@@ -32,11 +32,13 @@ void Simplification::getAllValidPair(CMyMesh *mesh)
 	}
 }
 
+// 输入一个顶点对
 void Simplification::getCost(Pair &p)
 {
-	Matrix4d addQ = p.p1->getQ() + p.p2->getQ();
+	Matrix4d addQ = p.p1->getQ() + p.p2->getQ(); // 两个顶点的Q值直接相加
 	/*cout << addQ << endl;
 	getchar();*/
+
 	Matrix4d addQ1;
 	for (int k = 0; k < 3; k++)
 	{
@@ -49,11 +51,13 @@ void Simplification::getCost(Pair &p)
 	addQ1(3, 1) = 0;
 	addQ1(3, 2) = 0;
 	addQ1(3, 3) = 1;
+
 	Vector4d a;
 	a << 0, 0, 0, 1;
 	Vector4d result, p1, p2;
 	p1 << p.p1->point()[0], p.p1->point()[1], p.p1->point()[2], 1;
 	p2 << p.p2->point()[0], p.p2->point()[1], p.p2->point()[2], 1;
+
 	if (isnan(addQ1.inverse()(0)))
 	{
 		double maxk = 0, maxcost = 0;
@@ -80,6 +84,7 @@ void Simplification::getCost(Pair &p)
 	}
 	p.Cost = (result.transpose() * addQ * result)(0);
 }
+
 void Simplification::getAllCost()
 {
 	for (int i = 0; i < allPair.size(); i++)
@@ -87,6 +92,7 @@ void Simplification::getAllCost()
 		getCost(allPair[i]);
 	}
 }
+
 bool cmp1(Pair a, Pair b)
 {
 	return a.Cost < b.Cost;
@@ -98,7 +104,7 @@ void Simplification::BuildPairHeap()
 }
 void Simplification::contraction(CMyMesh *mesh, Pair p)
 {
-	CMyVertex *v = mesh->idVertex(p.p2->id());
+	CMyVertex *v = mesh->idVertex(p.p2->id()); // 根据顶点id获取顶点
 	p.p1->point() = p.v;
 	p.p1->setQ(p.p1->getQ() + p.p2->getQ());
 	//CMyVertex *v;
@@ -396,6 +402,7 @@ void Simplification::contraction(CMyMesh *mesh, Pair p)
 	//mesh->vertices().remove((CMyVertex *)p.p2);
 	std::cout << "allPair:" << allPair.size() << endl;
 }
+
 void Simplification::simplificate(CMyMesh *mesh, double ratio)
 {
 	initQ(mesh);
@@ -406,7 +413,7 @@ void Simplification::simplificate(CMyMesh *mesh, double ratio)
 	while (mesh->numFaces() > a * ratio) //
 	{
 		//BuildPairHeap();
-		sort(allPair.begin(), allPair.end(), cmp1);
+		sort(allPair.begin(), allPair.end(), cmp1); // 对所有的边对根据代价排序
 		Pair p = allPair[0];
 		cout << "merge:" << p.p1->id() << " " << p.p2->id() << endl;
 		//getchar();
