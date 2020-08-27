@@ -64,12 +64,16 @@ void util::deleteEdge(CMyMesh *mesh,CEdge* e) {//删除边e
 	}
 	delete e;
 }
-CEdge* util::locateEdge(CMyMesh *mesh,CVertex* p1, CVertex*p2) {//找到p1,p2所在的边
+
+CEdge *util::locateEdge(CMyMesh *mesh, CVertex *p1, CVertex *p2) //找到p1,p2所在的边
+{
 	CMyVertex *v = mesh->idVertex(p1->id());
-	for (CMyMesh::VertexInHalfedgeIterator vihiter(mesh,v); !vihiter.end(); vihiter++) {
+	for (CMyMesh::VertexInHalfedgeIterator vihiter(mesh, v); !vihiter.end(); vihiter++)
+	{
 		CHalfEdge *pHe = *vihiter;
-		if (pHe->source()->id() == p2->id()) {			
-		return pHe->edge();
+		if (pHe->source()->id() == p2->id())
+		{
+			return pHe->edge();
 		}
 	}
 	return NULL;

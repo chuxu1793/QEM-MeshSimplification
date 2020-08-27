@@ -33,9 +33,9 @@ void Simplification::getAllValidPair(CMyMesh *mesh)
 }
 
 // 输入一个顶点对
-void Simplification::getCost(Pair &p)
+void Simplification::getCost(Pair &pair)
 {
-	Matrix4d addQ = p.p1->getQ() + p.p2->getQ(); // 两个顶点的Q值直接相加
+	Matrix4d addQ = pair.p1->getQ() + pair.p2->getQ(); // 两个顶点的Q值直接相加
 	/*cout << addQ << endl;
 	getchar();*/
 
@@ -55,9 +55,10 @@ void Simplification::getCost(Pair &p)
 	Vector4d a;
 	a << 0, 0, 0, 1;
 	Vector4d result, p1, p2;
-	p1 << p.p1->point()[0], p.p1->point()[1], p.p1->point()[2], 1;
-	p2 << p.p2->point()[0], p.p2->point()[1], p.p2->point()[2], 1;
+	p1 << pair.p1->point()[0], pair.p1->point()[1], pair.p1->point()[2], 1;
+	p2 << pair.p2->point()[0], pair.p2->point()[1], pair.p2->point()[2], 1;
 
+	// 查找误差（代价）最小的点result,并记录下误差
 	if (isnan(addQ1.inverse()(0)))
 	{
 		double maxk = 0, maxcost = 0;
@@ -102,33 +103,33 @@ void Simplification::BuildPairHeap()
 {
 	make_heap(allPair.begin(), allPair.end(), cmp1);
 }
-void Simplification::contraction(CMyMesh *mesh, Pair p)
+void Simplification::contraction(CMyMesh *mesh, Pair pair)
 {
-	CMyVertex *v = mesh->idVertex(p.p2->id()); // 根据顶点id获取顶点
-	p.p1->point() = p.v;
-	p.p1->setQ(p.p1->getQ() + p.p2->getQ());
+	CMyVertex *v = mesh->idVertex(pair.p2->id()); // 根据顶点id获取顶点
+	pair.p1->point() = pair.v; // 把误差最小点赋值给边中的p1点
+	pair.p1->setQ(pair.p1->getQ() + pair.p2->getQ()); // 把两点的误差度量矩阵相加并赋值给p1点
 	//CMyVertex *v;
 	//记录半边
 	CHalfEdge *pHe3 = NULL, *pHe4 = NULL, *pHe5 = NULL, *pHe6 = NULL, *pH1 = NULL, *pH2 = NULL;
 	//if (!(e->boundary())) {
 	//	if(!(e->halfedge(0)->he_next()->edge()->boundary())&& !(e->halfedge(0)->he_prev()->edge()->boundary()) && !(e->halfedge(1)->he_next()->edge()->boundary())&& !(e->halfedge(1)->he_prev()->edge()->boundary())){
 	//for (int i = 0; i < allPair.size(); i++) {
-	//	if (allPair[i].p1->id() == p.p1->id()) {
-	//		allPair[i].p1->point() = p.v;
-	//		allPair[i].p1->setQ(p.p1->getQ());
+	//	if (allPair[i].p1->id() == pair.p1->id()) {
+	//		allPair[i].p1->point() = pair.v;
+	//		allPair[i].p1->setQ(pair.p1->getQ());
 	//		getCost(allPair[i]);
 	//	}
-	//	if (allPair[i].p2->id() == p.p1->id()) {
-	//		allPair[i].p2->point() = p.v;
-	//		allPair[i].p2->setQ(p.p1->getQ());
+	//	if (allPair[i].p2->id() == pair.p1->id()) {
+	//		allPair[i].p2->point() = pair.v;
+	//		allPair[i].p2->setQ(pair.p1->getQ());
 	//		getCost(allPair[i]);
 	//	}
-	//	if (allPair[i].p1->id() == p.p2->id()) {
-	//		allPair[i].p1 = p.p1;
+	//	if (allPair[i].p1->id() == pair.p2->id()) {
+	//		allPair[i].p1 = pair.p1;
 	//		getCost(allPair[i]);
 	//	}
-	//	if (allPair[i].p2->id() == p.p2->id()) {
-	//		allPair[i].p2 = p.p1;
+	//	if (allPair[i].p2->id() == pair.p2->id()) {
+	//		allPair[i].p2 = pair.p1;
 	//		getCost(allPair[i]);
 	//	}
 	//}
@@ -151,7 +152,7 @@ void Simplification::contraction(CMyMesh *mesh, Pair p)
 	//bool *same = new bool[allPair.size()];
 	//memset(same, 0, sizeof(same));
 	//for (int i = 0; i < allPair.size(); i++) {
-	//	if (allPair[i].p1->point() == p.v || allPair[i].p2->point() == p.v) {
+	//	if (allPair[i].p1->point() == pair.v || allPair[i].p2->point() == pair.v) {
 	//		same[i] = 1;
 	//		//cout << "i=" << allPair[i].p1->id() << " " << allPair[i].p2->id() << endl;
 	//	}
@@ -163,13 +164,13 @@ void Simplification::contraction(CMyMesh *mesh, Pair p)
 	//}
 	//BuildPairHeap();
 	//找到p1,p2所在的边e
-	CEdge *e = util::locateEdge(mesh, p.p1, p.p2);
+	CEdge *e = util::locateEdge(mesh, pair.p1, pair.p2); // 由两个顶点找到所在边
 	if ((e != NULL) && !(e->boundary()) && (e->halfedge(0)->he_next()->he_sym() != NULL) && (e->halfedge(0)->he_prev()->he_sym() != NULL) && (e->halfedge(1)->he_next()->he_sym() != NULL) && (e->halfedge(1)->he_prev()->he_sym() != NULL))
 	{
 		pH1 = e->halfedge(0);
 		pH2 = e->halfedge(1);
 		//记录不删的半边
-		if (e->halfedge(0)->target()->id() == p.p2->id())
+		if (e->halfedge(0)->target()->id() == pair.p2->id())
 		{
 			pHe3 = e->halfedge(0)->he_next()->he_sym();
 			pHe4 = e->halfedge(0)->he_prev()->he_sym();
@@ -209,23 +210,23 @@ void Simplification::contraction(CMyMesh *mesh, Pair p)
 		for (CMyMesh::VertexInHalfedgeIterator vieiter(mesh, v); !vieiter.end(); ++vieiter)
 		{
 			CHalfEdge *pH = *vieiter;
-			pH->target() = p.p1;
+			pH->target() = pair.p1;
 		}
 		for (CMyMesh::VertexOutHalfedgeIterator vieiter(mesh, v); !vieiter.end(); ++vieiter)
 		{
 			CHalfEdge *pH = *vieiter;
-			pH->source() = p.p1;
+			pH->source() = pair.p1;
 		}
 		//删除p2点
-		mesh->vertices().remove((CMyVertex *)p.p2);
-		//mesh->vertices().erase(find(mesh->vertices().begin(), mesh->vertices().end(), p.p2));
+		mesh->vertices().remove((CMyVertex *)pair.p2);
+		//mesh->vertices().erase(find(mesh->vertices().begin(), mesh->vertices().end(), pair.p2));
 		cout << "merge success" << endl;
 	}
 	//		pH1 = e->halfedge(0);
 	//		pH2 = e->halfedge(1);
 	//		if ((e != NULL) && !(e->boundary())) {
 	//
-	//			if (e->halfedge(0)->target()->id() == p.p2->id()) {
+	//			if (e->halfedge(0)->target()->id() == pair.p2->id()) {
 	//				if (e->halfedge(0)->he_next()->edge()->boundary()&& e->halfedge(1)->he_prev()->edge()->boundary()) {//上下两面都是边界，删面即可
 	//
 	//					mesh->deleteFace((CMyFace*)pH1->face());
@@ -243,11 +244,11 @@ void Simplification::contraction(CMyMesh *mesh, Pair p)
 
 	//						for (CMyMesh::VertexInHalfedgeIterator vieiter(mesh, v); !vieiter.end(); ++vieiter) {
 	//							CHalfEdge *pH = *vieiter;
-	//							pH->target() = p.p1;
+	//							pH->target() = pair.p1;
 	//						}
 	//						for (CMyMesh::VertexOutHalfedgeIterator vieiter(mesh, v); !vieiter.end(); ++vieiter) {
 	//							CHalfEdge *pH = *vieiter;
-	//							pH->source() = p.p1;
+	//							pH->source() = pair.p1;
 	//						}
 	//					}
 	//					mesh->deleteFace((CMyFace*)pH1->face());
@@ -264,11 +265,11 @@ void Simplification::contraction(CMyMesh *mesh, Pair p)
 
 	//						for (CMyMesh::VertexInHalfedgeIterator vieiter(mesh, v); !vieiter.end(); ++vieiter) {
 	//							CHalfEdge *pH = *vieiter;
-	//							pH->target() = p.p1;
+	//							pH->target() = pair.p1;
 	//						}
 	//						for (CMyMesh::VertexOutHalfedgeIterator vieiter(mesh, v); !vieiter.end(); ++vieiter) {
 	//							CHalfEdge *pH = *vieiter;
-	//							pH->source() = p.p1;
+	//							pH->source() = pair.p1;
 	//						}
 	//					}
 	//					mesh->deleteFace((CMyFace*)pH1->face());
@@ -293,11 +294,11 @@ void Simplification::contraction(CMyMesh *mesh, Pair p)
 	//						//改变所有和p2有关的半边走向
 	//						for (CMyMesh::VertexInHalfedgeIterator vieiter(mesh, v); !vieiter.end(); ++vieiter) {
 	//							CHalfEdge *pH = *vieiter;
-	//							pH->target() = p.p1;
+	//							pH->target() = pair.p1;
 	//						}
 	//						for (CMyMesh::VertexOutHalfedgeIterator vieiter(mesh, v); !vieiter.end(); ++vieiter) {
 	//							CHalfEdge *pH = *vieiter;
-	//							pH->source() = p.p1;
+	//							pH->source() = pair.p1;
 	//						}
 	//					}
 	//				}
@@ -319,11 +320,11 @@ void Simplification::contraction(CMyMesh *mesh, Pair p)
 
 	//						for (CMyMesh::VertexInHalfedgeIterator vieiter(mesh, v); !vieiter.end(); ++vieiter) {
 	//							CHalfEdge *pH = *vieiter;
-	//							pH->target() = p.p1;
+	//							pH->target() = pair.p1;
 	//						}
 	//						for (CMyMesh::VertexOutHalfedgeIterator vieiter(mesh, v); !vieiter.end(); ++vieiter) {
 	//							CHalfEdge *pH = *vieiter;
-	//							pH->source() = p.p1;
+	//							pH->source() = pair.p1;
 	//						}
 	//					}
 	//					mesh->deleteFace((CMyFace*)pH1->face());
@@ -340,11 +341,11 @@ void Simplification::contraction(CMyMesh *mesh, Pair p)
 
 	//						for (CMyMesh::VertexInHalfedgeIterator vieiter(mesh, v); !vieiter.end(); ++vieiter) {
 	//							CHalfEdge *pH = *vieiter;
-	//							pH->target() = p.p1;
+	//							pH->target() = pair.p1;
 	//						}
 	//						for (CMyMesh::VertexOutHalfedgeIterator vieiter(mesh, v); !vieiter.end(); ++vieiter) {
 	//							CHalfEdge *pH = *vieiter;
-	//							pH->source() = p.p1;
+	//							pH->source() = pair.p1;
 	//						}
 	//					}
 	//					mesh->deleteFace((CMyFace*)pH1->face());
@@ -369,11 +370,11 @@ void Simplification::contraction(CMyMesh *mesh, Pair p)
 	//						//改变所有和p2有关的半边走向
 	//						for (CMyMesh::VertexInHalfedgeIterator vieiter(mesh, v); !vieiter.end(); ++vieiter) {
 	//							CHalfEdge *pH = *vieiter;
-	//							pH->target() = p.p1;
+	//							pH->target() = pair.p1;
 	//						}
 	//						for (CMyMesh::VertexOutHalfedgeIterator vieiter(mesh, v); !vieiter.end(); ++vieiter) {
 	//							CHalfEdge *pH = *vieiter;
-	//							pH->source() = p.p1;
+	//							pH->source() = pair.p1;
 	//						}
 	//					}
 	//				}
@@ -391,15 +392,15 @@ void Simplification::contraction(CMyMesh *mesh, Pair p)
 	//				pHe3->edge() = pHe4->edge();
 	//				for (CMyMesh::VertexInHalfedgeIterator vieiter(mesh, v); !vieiter.end(); ++vieiter) {
 	//					CHalfEdge *pH = *vieiter;
-	//					pH->target() = p.p1;
+	//					pH->target() = pair.p1;
 	//				}
 	//				for (CMyMesh::VertexOutHalfedgeIterator vieiter(mesh, v); !vieiter.end(); ++vieiter) {
 	//					CHalfEdge *pH = *vieiter;
-	//					pH->source() = p.p1;
+	//					pH->source() = pair.p1;
 	//				}
 	//			}
 	//		}
-	//mesh->vertices().remove((CMyVertex *)p.p2);
+	//mesh->vertices().remove((CMyVertex *)pair.p2);
 	std::cout << "allPair:" << allPair.size() << endl;
 }
 
@@ -413,9 +414,9 @@ void Simplification::simplificate(CMyMesh *mesh, double ratio)
 	while (mesh->numFaces() > a * ratio) //
 	{
 		//BuildPairHeap();
-		sort(allPair.begin(), allPair.end(), cmp1); // 对所有的边对根据代价排序
+		sort(allPair.begin(), allPair.end(), cmp1); // 对所有的边根据误差升序排序
 		Pair p = allPair[0];
-		cout << "merge:" << p.p1->id() << " " << p.p2->id() << endl;
+		cout << "merge:" << pair.p1->id() << " " << pair.p2->id() << endl;
 		//getchar();
 		cout << p.Cost << endl;
 		//getchar();
